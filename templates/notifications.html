@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Notifications – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:680px">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="page-title"><i class="fas fa-bell me-2" style="color:var(--acc)"></i>Notifications</h1>
+    {% if notifications %}
+    <form method="POST" action="{{ url_for('clear_notifications') }}">
+      <button class="btn btn-sm ch-btn-ghost">
+        <i class="fas fa-check-double me-1"></i>Clear All
+      </button>
+    </form>
+    {% endif %}
+  </div>
+  <div class="ch-card">
+    {% if notifications %}
+      {% for n in notifications %}
+      <div class="notif-item {% if not n.read %}unread{% endif %}">
+        <div class="notif-icon notif-type-{{ n.type }}">
+          {% if n.type=='badge' %}🏅
+          {% elif n.type=='join' %}🤝
+          {% elif n.type=='message' %}💬
+          {% else %}ℹ️{% endif %}
+        </div>
+        <div class="flex-grow-1">
+          <div style="font-size:.88rem">{{ n.message }}</div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">{{ n.created_at }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-s large">
+      <i class="fas fa-bell-slash d-block mb-3" style="font-size:2.5rem;color:var(--muted)"></i>
+      <div class="fw-semibold mb-1">All caught up!</div>
+      <div>No notifications yet.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

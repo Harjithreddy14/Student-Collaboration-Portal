@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Members – CollabHub{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h1 class="page-title">Members</h1>
+      <p class="text-muted mb-0">{{ all_users|length }} students on CollabHub</p>
+    </div>
+    <input type="text" id="memberSearch" class="form-control ch-input"
+           style="max-width:260px" placeholder="🔍  Search members…" />
+  </div>
+  <div class="row g-4" id="memberGrid">
+    {% for m in all_users %}
+    <div class="col-sm-6 col-md-4 col-xl-3 mem-wrap"
+         data-name="{{ m.name|lower }}" data-course="{{ m.course|lower }}"
+         data-skills="{{ m.skills|join(' ')|lower }}">
+      <div class="mem-card h-100 {% if m.id == session.user_id %}is-me{% endif %}">
+        <a href="{{ url_for('public_profile', uid=m.id) }}">
+          <div class="mem-av">{{ m.avatar }}</div>
+        </a>
+        <h6 class="mem-name">
+          <a href="{{ url_for('public_profile', uid=m.id) }}" style="color:var(--text)">{{ m.name }}</a>
+          {% if m.id == session.user_id %}
+          <span class="ms-1 px-1 rounded" style="background:rgba(108,99,255,.15);color:var(--acc);font-size:.65rem;font-weight:700">You</span>
+          {% endif %}
+        </h6>
+        <div class="mem-course"><i class="fas fa-graduation-cap me-1"></i>{{ m.course }} · Yr {{ m.year }}</div>
+        {% if m.badges %}
+        <div class="d-flex justify-content-center gap-1 mt-1 mb-1 flex-wrap">
+          {% for b in m.badges[:3] %}{% if b in BADGES %}
+          <span title="{{ BADGES[b].name }}" style="font-size:.9rem">{{ BADGES[b].icon }}</span>
+          {% endif %}{% endfor %}
+          {% if m.badges|length > 3 %}<span style="font-size:.72rem;color:var(--muted)">+{{ m.badges|length-3 }}</span>{% endif %}
+        </div>
+        {% endif %}
+        <div class="d-flex flex-wrap gap-1 justify-content-center mt-1 mb-3">
+          {% for s in m.skills[:3] %}<span class="skill-badge sm">{{ s }}</span>{% endfor %}
+          {% if m.skills|length > 3 %}<span class="skill-badge sm">+{{ m.skills|length-3 }}</span>{% endif %}
+          {% if not m.skills %}<span class="text-muted" style="font-size:.75rem">No skills listed</span>{% endif %}
+        </div>
+        {% if m.id != session.user_id %}
+        <a href="{{ url_for('message_thread', partner_id=m.id) }}" class="btn btn-sm ch-btn-outline w-100 mt-auto">
+          <i class="fas fa-comment me-1"></i>Message
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+$('#memberSearch').on('input', function() {
+  var q = $(this).val().toLowerCase();
+  $('.mem-wrap').each(function() {
+    var hay = $(this).data('name')+' '+$(this).data('course')+' '+$(this).data('skills');
+    $(this).toggle(hay.includes(q));
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Sticky Notes – CollabHub{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h1 class="page-title"><i class="fas fa-sticky-note me-2" style="color:var(--acc4)"></i>Sticky Notes</h1>
+      <p class="text-muted mb-0">Your personal notes board</p>
+    </div>
+    <button class="btn ch-btn-primary" data-bs-toggle="modal" data-bs-target="#addNoteModal">
+      <i class="fas fa-plus me-2"></i>New Note
+    </button>
+  </div>
+
+  {% if pinned %}
+  <div class="mb-4">
+    <div class="section-head"><i class="fas fa-thumbtack" style="color:var(--acc3)"></i> Pinned</div>
+    <div class="notes-grid">
+      {% for note in pinned %}
+      <div class="sticky-note {{ note.color }}">
+        <div class="note-pinned-banner"><i class="fas fa-thumbtack"></i> Pinned</div>
+        {% if note.title %}<div class="note-title">{{ note.title }}</div>{% endif %}
+        <div class="note-body">{{ note.content }}</div>
+        <div class="note-footer">
+          <span class="note-date">{{ note.created_at }}</span>
+          <div class="note-actions">
+            <form method="POST" action="{{ url_for('pin_note', nid=note.id) }}" style="display:inline">
+              <button class="note-btn" title="Unpin"><i class="fas fa-thumbtack"></i></button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_note', nid=note.id) }}" style="display:inline">
+              <button class="note-btn" title="Delete"
+                data-confirm="Delete this note?" onclick="if(!confirm('Delete this note?')) return false;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if notes %}
+  <div class="notes-grid">
+    {% for note in notes %}
+    <div class="sticky-note {{ note.color }}">
+      {% if note.title %}<div class="note-title">{{ note.title }}</div>{% endif %}
+      <div class="note-body">{{ note.content }}</div>
+      <div class="note-footer">
+        <span class="note-date">{{ note.created_at }}</span>
+        <div class="note-actions">
+          <form method="POST" action="{{ url_for('pin_note', nid=note.id) }}" style="display:inline">
+            <button class="note-btn" title="Pin"><i class="far fa-thumbtack"></i></button>
+          </form>
+          <form method="POST" action="{{ url_for('delete_note', nid=note.id) }}" style="display:inline">
+            <button class="note-btn" title="Delete"
+              onclick="if(!confirm('Delete this note?')) return false;">
+              <i class="fas fa-trash"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% elif not pinned %}
+  <div class="empty-s large">
+    <i class="fas fa-sticky-note d-block mb-3" style="font-size:2.5rem;color:var(--acc4)"></i>
+    <div class="fw-semibold mb-1">No notes yet</div>
+    <div>Click "New Note" to create your first sticky note!</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2" style="color:var(--acc)"></i>New Sticky Note</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('add_note') }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="ch-label">Title (optional)</label>
+            <input type="text" name="title" class="form-control ch-input" placeholder="Note title…" />
+          </div>
+          <div class="mb-3">
+            <label class="ch-label">Content</label>
+            <textarea name="content" class="form-control ch-input" rows="5"
+                      placeholder="Write your note…" required></textarea>
+          </div>
+          <div class="mb-2">
+            <label class="ch-label">Color</label>
+            <input type="hidden" name="color" id="noteColor" value="yellow" />
+            <div class="color-picker mt-1">
+              <div class="color-dot yellow selected" data-color="yellow" title="Yellow"></div>
+              <div class="color-dot blue"   data-color="blue"   title="Blue"></div>
+              <div class="color-dot green"  data-color="green"  title="Green"></div>
+              <div class="color-dot pink"   data-color="pink"   title="Pink"></div>
+              <div class="color-dot purple" data-color="purple" title="Purple"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn ch-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn ch-btn-primary">
+            <i class="fas fa-save me-2"></i>Save Note
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

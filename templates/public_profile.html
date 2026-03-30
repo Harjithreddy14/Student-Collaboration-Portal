@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ target.name }} – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:820px">
+  <a href="{{ url_for('members') }}" class="back-link mb-4 d-inline-block">
+    <i class="fas fa-arrow-left me-2"></i>Back to Members
+  </a>
+
+  <!-- Hero -->
+  <div class="profile-hero mb-4">
+    <div class="d-flex align-items-center gap-4 flex-wrap position-relative">
+      <div class="prof-av-lg">{{ target.avatar }}</div>
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+          <h1 class="page-title mb-0">{{ target.name }}</h1>
+          <span class="level-badge"><i class="fas fa-star"></i> Level {{ level }}</span>
+        </div>
+        <div class="text-muted mb-2" style="font-size:.88rem">
+          <i class="fas fa-graduation-cap me-1"></i>{{ target.course }} · Year {{ target.year }}
+        </div>
+        {% if target.bio %}
+        <div style="font-size:.88rem;color:var(--text)">{{ target.bio }}</div>
+        {% endif %}
+        <!-- XP bar -->
+        <div class="mt-2" style="max-width:240px">
+          <div class="d-flex justify-content-between mb-1" style="font-size:.7rem;color:var(--muted)">
+            <span>{{ target.xp }} XP</span>
+          </div>
+          <div class="xp-bar-wrap">
+            <div class="xp-bar-fill" style="width:{{ [((target.xp / 500) * 100)|int, 100]|min }}%"></div>
+          </div>
+        </div>
+      </div>
+      <a href="{{ url_for('message_thread', partner_id=target.id) }}" class="btn ch-btn-primary">
+        <i class="fas fa-comment me-2"></i>Message
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <!-- Skills -->
+      <div class="ch-card mb-3">
+        <div class="ch-card-head"><span><i class="fas fa-star me-2" style="color:var(--acc4)"></i>Skills</span></div>
+        <div class="ch-card-body">
+          {% if target.skills %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for s in target.skills %}<span class="skill-badge">{{ s }}</span>{% endfor %}
+          </div>
+          {% else %}<p class="text-muted small mb-0">No skills listed.</p>{% endif %}
+        </div>
+      </div>
+      <!-- Badges -->
+      <div class="ch-card">
+        <div class="ch-card-head"><span><i class="fas fa-medal me-2" style="color:var(--acc4)"></i>Badges</span></div>
+        <div class="ch-card-body">
+          {% if target.badges %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for b in target.badges %}
+            {% if b in BADGES %}
+            <span class="badge-chip" title="{{ BADGES[b].desc }}">
+              <span class="badge-icon">{{ BADGES[b].icon }}</span>{{ BADGES[b].name }}
+            </span>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% else %}<p class="text-muted small mb-0">No badges yet.</p>{% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <!-- Projects -->
+      <div class="ch-card mb-3">
+        <div class="ch-card-head"><span><i class="fas fa-rocket me-2" style="color:var(--acc)"></i>Projects ({{ their_projects|length }})</span></div>
+        <div class="ch-card-body">
+          {% if their_projects %}
+            {% for p in their_projects %}
+            <div class="proj-row">
+              <div class="proj-ico"><i class="fas fa-rocket"></i></div>
+              <div class="flex-grow-1">
+                <a href="{{ url_for('project_detail', pid=p.id) }}" class="proj-link">{{ p.title }}</a>
+                <p class="text-muted small mb-0">{{ p.description[:80] }}…</p>
+              </div>
+              <span class="status-badge {{ p.status.lower() }}">{{ p.status }}</span>
+            </div>
+            {% endfor %}
+          {% else %}<div class="empty-s">No projects yet.</div>{% endif %}
+        </div>
+      </div>
+      <!-- Posts -->
+      <div class="ch-card">
+        <div class="ch-card-head"><span><i class="fas fa-stream me-2" style="color:var(--acc2)"></i>Posts ({{ their_posts|length }})</span></div>
+        <div class="ch-card-body">
+          {% if their_posts %}
+            {% for p in their_posts %}
+            <div class="mini-post">
+              <div class="av-sm">{{ target.avatar }}</div>
+              <div>
+                <div style="font-size:.85rem">{{ p.content }}</div>
+                <div class="text-muted" style="font-size:.72rem">{{ p.created_at[:10] }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}<div class="empty-s">No posts yet.</div>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

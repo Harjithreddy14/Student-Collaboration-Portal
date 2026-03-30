@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Schedule – CollabHub{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-4" style="max-width:860px">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h1 class="page-title"><i class="fas fa-check-circle me-2" style="color:var(--acc2)"></i>My Schedule</h1>
+      <p class="text-muted mb-0">Track tasks, deadlines & project work</p>
+    </div>
+    <button class="btn ch-btn-primary" data-bs-toggle="modal" data-bs-target="#addTodoModal">
+      <i class="fas fa-plus me-2"></i>Add Task
+    </button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="row g-3 mb-4">
+    {% set total = todos|length %}
+    {% set done_count = todos|selectattr('done')|list|length %}
+    {% set pending = total - done_count %}
+    <div class="col-4">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(108,99,255,.12);color:var(--acc)"><i class="fas fa-list"></i></div>
+        <div><div class="sc-num">{{ total }}</div><div class="sc-lbl">Total Tasks</div></div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(0,212,170,.12);color:var(--acc2)"><i class="fas fa-check"></i></div>
+        <div><div class="sc-num">{{ done_count }}</div><div class="sc-lbl">Completed</div></div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(255,209,102,.12);color:var(--acc4)"><i class="fas fa-clock"></i></div>
+        <div><div class="sc-num">{{ pending }}</div><div class="sc-lbl">Pending</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ch-card">
+    <div class="ch-card-head">
+      <span><i class="fas fa-tasks me-2" style="color:var(--acc2)"></i>Tasks</span>
+      <div class="d-flex gap-2">
+        <button class="ch-filter-btn active" data-filter="all">All</button>
+        <button class="ch-filter-btn" data-filter="pending">Pending</button>
+        <button class="ch-filter-btn" data-filter="done">Done</button>
+      </div>
+    </div>
+    {% if todos %}
+    <div id="todoList">
+      {% for t in todos %}
+      <div class="todo-item {% if t.done %}done{% endif %}" data-status="{% if t.done %}done{% else %}pending{% endif %}">
+        <form method="POST" action="{{ url_for('toggle_todo', tid=t.id) }}" style="display:inline">
+          <button type="submit" class="todo-check {% if t.done %}checked{% endif %} border-0 p-0" title="Toggle done"></button>
+        </form>
+        <div class="flex-grow-1">
+          <div class="todo-title">{{ t.title }}</div>
+          <div class="todo-meta mt-1">
+            {% if t.due_date %}
+            <span class="todo-due {% if not t.done %}{% endif %}">
+              <i class="fas fa-calendar me-1"></i>{{ t.due_date }}
+            </span>
+            {% endif %}
+            <span class="priority-badge {{ t.priority }}">{{ t.priority }}</span>
+            {% if t.project %}
+            <span><i class="fas fa-rocket me-1" style="color:var(--acc)"></i>{{ t.project }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <form method="POST" action="{{ url_for('delete_todo', tid=t.id) }}"
+              onsubmit="return confirm('Delete this task?')">
+          <button type="submit" class="btn btn-sm" style="color:var(--acc3);background:none;border:none;padding:.2rem .4rem">
+            <i class="fas fa-times"></i>
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-s large">
+      <i class="fas fa-check-circle d-block mb-3" style="font-size:2.5rem;color:var(--acc2)"></i>
+      <div class="fw-semibold mb-1">No tasks yet</div>
+      <div>Click "Add Task" to get started!</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Add Todo Modal -->
+<div class="modal fade" id="addTodoModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2" style="color:var(--acc)"></i>New Task</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('add_todo') }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="ch-label">Task Title</label>
+            <input type="text" name="title" class="form-control ch-input" placeholder="What needs to be done?" required />
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="ch-label">Due Date</label>
+              <input type="date" name="due_date" class="form-control ch-input" />
+            </div>
+            <div class="col-6">
+              <label class="ch-label">Priority</label>
+              <select name="priority" class="form-select ch-select">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="ch-label">Related Project (optional)</label>
+            <select name="project" class="form-select ch-select">
+              <option value="">— None —</option>
+              {% for p in my_projects %}
+              <option value="{{ p.title }}">{{ p.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn ch-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn ch-btn-primary">
+            <i class="fas fa-plus me-2"></i>Add Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // filter buttons
+  document.querySelectorAll('[data-filter]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const f = this.dataset.filter;
+      document.querySelectorAll('.todo-item').forEach(function(item) {
+        if (f === 'all') {
+          item.style.display = '';
+        } else {
+          item.style.display = item.dataset.status === f ? '' : 'none';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

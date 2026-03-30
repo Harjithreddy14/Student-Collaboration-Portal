@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – CollabHub{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h1 class="page-title">Good day, <span class="grad">{{ user.name.split()[0] }}</span> 👋</h1>
+      <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+        <span class="text-muted" style="font-size:.85rem">{{ user.course }} · Year {{ user.year }}</span>
+        <span class="level-badge"><i class="fas fa-star me-1"></i>Level {{ level }}</span>
+        <span style="font-size:.78rem;color:var(--muted)">{{ user.xp }} / {{ xp_next }} XP</span>
+      </div>
+      <div class="xp-bar-wrap mt-2" style="max-width:200px">
+        <div class="xp-bar-fill" style="width:{{ [((user.xp / xp_next) * 100)|int, 100]|min }}%"></div>
+      </div>
+    </div>
+    <a href="{{ url_for('new_project') }}" class="btn ch-btn-primary">
+      <i class="fas fa-plus me-2"></i>New Project
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(108,99,255,.15);color:var(--acc)"><i class="fas fa-rocket"></i></div>
+        <div><div class="sc-num">{{ my_projects|length }}</div><div class="sc-lbl">My Projects</div></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(0,212,170,.12);color:var(--acc2)"><i class="fas fa-check-circle"></i></div>
+        <div><div class="sc-num">{{ my_todos|selectattr('done','equalto',False)|list|length }}</div><div class="sc-lbl">Pending Tasks</div></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(255,209,102,.12);color:var(--acc4)"><i class="fas fa-sticky-note"></i></div>
+        <div><div class="sc-num">{{ my_notes|length }}</div><div class="sc-lbl">My Notes</div></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="sc-icon" style="background:rgba(255,107,107,.12);color:var(--acc3)"><i class="fas fa-medal"></i></div>
+        <div><div class="sc-num">{{ user.badges|length }}</div><div class="sc-lbl">Badges</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+
+      <!-- My Projects -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-folder-open me-2" style="color:var(--acc)"></i>My Projects</span>
+          <a href="{{ url_for('projects') }}" class="btn btn-sm ch-btn-ghost">View All</a>
+        </div>
+        <div class="ch-card-body">
+          {% if my_projects %}
+            {% for p in my_projects %}
+            <div class="proj-row">
+              <div class="proj-ico"><i class="fas fa-rocket"></i></div>
+              <div class="flex-grow-1">
+                <a href="{{ url_for('project_detail', pid=p.id) }}" class="proj-link">{{ p.title }}</a>
+                <p class="text-muted small mb-1">{{ p.description[:90] }}{% if p.description|length > 90 %}...{% endif %}</p>
+                <div class="d-flex flex-wrap gap-1">
+                  {% for t in p.tags %}<span class="ch-tag">{{ t }}</span>{% endfor %}
+                </div>
+              </div>
+              <span class="status-badge {{ p.status.lower() }}">{{ p.status }}</span>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="empty-s"><i class="fas fa-rocket mb-2 d-block"></i>No projects yet. <a href="{{ url_for('new_project') }}">Create one!</a></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Upcoming Tasks -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-tasks me-2" style="color:var(--acc2)"></i>Upcoming Tasks</span>
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('calendar') }}" class="btn btn-sm ch-btn-ghost"><i class="fas fa-calendar me-1"></i>Calendar</a>
+            <a href="{{ url_for('todos') }}" class="btn btn-sm ch-btn-ghost">View All</a>
+          </div>
+        </div>
+        <div class="ch-card-body">
+          {% set pending_todos = my_todos|selectattr('done','equalto',False)|list %}
+          {% if pending_todos %}
+            {% for t in pending_todos[:4] %}
+            <div class="todo-item">
+              <div class="todo-check"></div>
+              <div class="flex-grow-1">
+                <div class="todo-title">{{ t.title }}</div>
+                <div class="todo-meta mt-1">
+                  {% if t.due_date %}<span><i class="fas fa-calendar me-1"></i>{{ t.due_date }}</span>{% endif %}
+                  <span class="priority-badge {{ t.priority }}">{{ t.priority }}</span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="empty-s"><i class="fas fa-check-circle mb-2 d-block"></i>All caught up! <a href="{{ url_for('todos') }}">Add a task</a></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Open to Join -->
+      {% if open_projects %}
+      <div class="ch-card">
+        <div class="ch-card-head"><span><i class="fas fa-door-open me-2" style="color:var(--acc4)"></i>Open to Join</span></div>
+        <div class="ch-card-body">
+          {% for p in open_projects %}
+          <div class="proj-row align-items-center">
+            <div class="proj-ico" style="background:rgba(0,212,170,.12);color:var(--acc2)"><i class="fas fa-puzzle-piece"></i></div>
+            <div class="flex-grow-1">
+              <strong>{{ p.title }}</strong>
+              <p class="text-muted small mb-0">{{ p.description[:70] }}...</p>
+            </div>
+            <form method="POST" action="{{ url_for('join_project', pid=p.id) }}">
+              <button class="btn btn-sm ch-btn-outline">Join</button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+
+      <!-- Badges -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-medal me-2" style="color:var(--acc4)"></i>My Badges</span>
+          <a href="{{ url_for('profile') }}" class="btn btn-sm ch-btn-ghost">Profile</a>
+        </div>
+        <div class="ch-card-body">
+          {% if user.badges %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for b in user.badges %}{% if b in BADGES %}
+            <span class="badge-chip" title="{{ BADGES[b].desc }}">
+              <span>{{ BADGES[b].icon }}</span>{{ BADGES[b].name }}
+            </span>
+            {% endif %}{% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-s" style="padding:1rem">
+            <i class="fas fa-medal d-block mb-2"></i>Earn badges by contributing!
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-trophy me-2" style="color:var(--acc4)"></i>Top Contributors</span>
+        </div>
+        <div class="ch-card-body" style="padding:.6rem">
+          {% for u in leaderboard %}
+          <div class="lb-row">
+            <div class="lb-rank {% if loop.index0==0 %}gold{% elif loop.index0==1 %}silver{% elif loop.index0==2 %}bronze{% endif %}">
+              {{ ['🥇','🥈','🥉','4','5'][loop.index0] }}
+            </div>
+            <div class="av-sm">{{ u.avatar }}</div>
+            <div class="flex-grow-1">
+              <div style="font-size:.85rem;font-weight:600">{{ u.name.split()[0] }}</div>
+              <div style="font-size:.72rem;color:var(--muted)">{{ u.xp }} XP</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recent Notes -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-sticky-note me-2" style="color:var(--acc4)"></i>Recent Notes</span>
+          <a href="{{ url_for('notes') }}" class="btn btn-sm ch-btn-ghost">View All</a>
+        </div>
+        <div class="ch-card-body" style="padding:.75rem">
+          {% if my_notes %}
+            {% for n in my_notes[:2] %}
+            <div class="sticky-note {{ n.color }} mb-2" style="min-height:auto;padding:.8rem">
+              {% if n.title %}<div class="note-title">{{ n.title }}</div>{% endif %}
+              <div class="note-body" style="font-size:.8rem">{{ n.content[:80] }}{% if n.content|length > 80 %}…{% endif %}</div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="empty-s" style="padding:1rem"><i class="fas fa-sticky-note d-block mb-2"></i>No notes. <a href="{{ url_for('notes') }}">Add one!</a></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Community Feed -->
+      <div class="ch-card">
+        <div class="ch-card-head">
+          <span><i class="fas fa-stream me-2" style="color:var(--acc2)"></i>Community</span>
+          <a href="{{ url_for('feed') }}" class="btn btn-sm ch-btn-ghost">See All</a>
+        </div>
+        <div class="ch-card-body">
+          {% for post in posts[:3] %}
+          <div class="mini-post">
+            <div class="av-sm">{{ post.author.avatar if post.author }}</div>
+            <div>
+              <div class="fw-semibold" style="font-size:.82rem">{{ post.author.name if post.author }}</div>
+              <div class="text-muted" style="font-size:.8rem">{{ post.content[:70] }}{% if post.content|length > 70 %}...{% endif %}</div>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-muted small mb-0">No posts yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

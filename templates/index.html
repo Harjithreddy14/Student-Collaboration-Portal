@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CollabHub – Student Collaboration Portal</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+<nav class="navbar ch-navbar-land px-4 py-3">
+  <a class="navbar-brand ch-brand" href="#">
+    <div class="brand-dot"></div>CollabHub
+  </a>
+  <div class="ms-auto d-flex gap-2">
+    <a href="{{ url_for('login') }}" class="btn ch-btn-ghost btn-sm">Login</a>
+    <a href="{{ url_for('register') }}" class="btn ch-btn-primary btn-sm px-4">Sign Up Free</a>
+  </div>
+</nav>
+
+<section class="hero-wrap">
+  <div class="hero-glow g1"></div>
+  <div class="hero-glow g2"></div>
+  <div class="container text-center py-5">
+    <span class="hero-badge"><i class="fas fa-bolt me-1"></i>Built for students</span>
+    <h1 class="hero-h1 mt-3">Find your team.<br/><span class="grad">Build something great.</span></h1>
+    <p class="hero-p mx-auto mt-3">
+      CollabHub connects university students to collaborate on projects,
+      share ideas, and build portfolios together.
+    </p>
+    <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{{ url_for('register') }}" class="btn ch-btn-primary btn-lg px-5">
+        Get Started <i class="fas fa-arrow-right ms-2"></i>
+      </a>
+      <a href="{{ url_for('login') }}" class="btn ch-btn-ghost btn-lg px-5">Sign In</a>
+    </div>
+    <div class="hero-stats mt-5 d-flex justify-content-center gap-5 flex-wrap">
+      <div><div class="hs-num">500+</div><div class="hs-lbl">Students</div></div>
+      <div><div class="hs-num">120+</div><div class="hs-lbl">Projects</div></div>
+      <div><div class="hs-num">40+</div><div class="hs-lbl">Universities</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="py-6 feat-section">
+  <div class="container">
+    <h2 class="text-center feat-title mb-5">Everything you need to <span class="grad">collaborate</span></h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feat-card">
+          <div class="feat-icon"><i class="fas fa-rocket"></i></div>
+          <h5>Project Hub</h5>
+          <p>Create or join projects, manage your team, and communicate in one place.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feat-card">
+          <div class="feat-icon" style="background:rgba(0,212,170,.15);color:#00d4aa"><i class="fas fa-stream"></i></div>
+          <h5>Community Feed</h5>
+          <p>Share updates, ideas, and opportunities with your entire student community.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feat-card">
+          <div class="feat-icon" style="background:rgba(255,209,102,.12);color:#ffd166"><i class="fas fa-users"></i></div>
+          <h5>Discover Members</h5>
+          <p>Find students with the skills you need and build your dream team fast.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center py-4 land-footer">
+  <small class="text-muted">© 2024 CollabHub &nbsp;·&nbsp; Made with <i class="fas fa-heart text-danger"></i> for students</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

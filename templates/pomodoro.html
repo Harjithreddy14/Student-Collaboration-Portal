@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Pomodoro Timer – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:480px">
+  <div class="text-center mb-4">
+    <h1 class="page-title"><span style="font-size:1.5rem">🍅</span> Pomodoro</h1>
+    <p class="text-muted">Stay focused. Work in short sprints.</p>
+  </div>
+  <div class="pomo-widget">
+    <div class="pomo-mode" id="pomoMode">FOCUS</div>
+    <div class="pomo-ring">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="60" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+        <circle id="pomoCircle" cx="70" cy="70" r="60" fill="none"
+                stroke="var(--acc)" stroke-width="8"
+                stroke-dasharray="377" stroke-dashoffset="0"
+                stroke-linecap="round"/>
+      </svg>
+      <div class="pomo-time" id="pomoTime">25:00</div>
+    </div>
+    <div class="d-flex gap-2 justify-content-center mt-3">
+      <button class="btn ch-btn-primary px-4" id="startBtn" onclick="toggleTimer()">
+        <i class="fas fa-play me-2"></i>Start
+      </button>
+      <button class="btn ch-btn-ghost" onclick="resetTimer()">
+        <i class="fas fa-redo"></i>
+      </button>
+    </div>
+    <div class="d-flex gap-2 justify-content-center mt-3">
+      <button class="ch-filter-btn active" onclick="setMode('focus',25)" id="btn-focus">🎯 Focus 25m</button>
+      <button class="ch-filter-btn" onclick="setMode('short',5)" id="btn-short">☕ Short 5m</button>
+      <button class="ch-filter-btn" onclick="setMode('long',15)" id="btn-long">🛋️ Long 15m</button>
+    </div>
+    <div class="mt-4 pt-3" style="border-top:1px solid var(--bdr)">
+      <div style="font-size:.78rem;color:var(--muted);text-align:center;margin-bottom:.5rem">TODAY'S SESSIONS</div>
+      <div class="d-flex justify-content-center gap-3">
+        <div class="text-center"><div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800" id="sessCount">0</div><div style="font-size:.72rem;color:var(--muted)">Completed</div></div>
+        <div class="text-center"><div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800" id="focusMin">0</div><div style="font-size:.72rem;color:var(--muted)">Focus mins</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="ch-card mt-3">
+    <div class="ch-card-body" style="font-size:.82rem;color:var(--muted)">
+      <strong style="color:var(--text)">How it works:</strong>
+      Work for 25 minutes, then take a 5-minute break. After 4 sessions, take a longer 15-minute break.
+      Repeat to maintain focus and avoid burnout. 🧠
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let duration = 25*60, remaining = 25*60, interval = null;
+let mode = 'focus', sessions = 0, focusMins = 0;
+const CIRCUMFERENCE = 2 * Math.PI * 60;
+
+function fmt(s) {
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+function updateDisplay() {
+  document.getElementById('pomoTime').textContent = fmt(remaining);
+  const pct = remaining / duration;
+  document.getElementById('pomoCircle').style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+}
+function toggleTimer() {
+  const btn = document.getElementById('startBtn');
+  if (interval) {
+    clearInterval(interval); interval = null;
+    btn.innerHTML = '<i class="fas fa-play me-2"></i>Resume';
+  } else {
+    interval = setInterval(() => {
+      remaining--;
+      updateDisplay();
+      if (remaining <= 0) {
+        clearInterval(interval); interval = null;
+        if (mode === 'focus') { sessions++; focusMins += Math.floor(duration/60); }
+        document.getElementById('sessCount').textContent = sessions;
+        document.getElementById('focusMin').textContent = focusMins;
+        btn.innerHTML = '<i class="fas fa-play me-2"></i>Start';
+        alert(mode==='focus' ? '🎉 Focus session done! Take a break.' : '⏰ Break over! Time to focus.');
+      }
+    }, 1000);
+    btn.innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
+  }
+}
+function resetTimer() {
+  clearInterval(interval); interval = null;
+  remaining = duration;
+  document.getElementById('startBtn').innerHTML = '<i class="fas fa-play me-2"></i>Start';
+  updateDisplay();
+}
+function setMode(m, mins) {
+  clearInterval(interval); interval = null;
+  mode = m; duration = mins*60; remaining = duration;
+  const labels = {focus:'FOCUS',short:'SHORT BREAK',long:'LONG BREAK'};
+  const colors = {focus:'var(--acc)',short:'var(--acc2)',long:'var(--acc4)'};
+  document.getElementById('pomoMode').textContent = labels[m];
+  document.getElementById('pomoCircle').style.stroke = colors[m];
+  document.getElementById('startBtn').innerHTML = '<i class="fas fa-play me-2"></i>Start';
+  document.querySelectorAll('.ch-filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-'+m).classList.add('active');
+  updateDisplay();
+}
+updateDisplay();
+</script>
+{% endblock %}

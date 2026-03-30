@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}New Project – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:660px">
+  <a href="{{ url_for('projects') }}" class="back-link mb-4 d-inline-block">
+    <i class="fas fa-arrow-left me-2"></i>Back to Projects
+  </a>
+  <div class="ch-card">
+    <div class="ch-card-head">
+      <span><i class="fas fa-rocket me-2 text-primary"></i>Create New Project</span>
+    </div>
+    <div class="ch-card-body">
+      <form method="POST" action="{{ url_for('new_project') }}">
+        <div class="mb-3">
+          <label class="ch-label">Project Title *</label>
+          <input type="text" name="title" class="form-control ch-input"
+                 placeholder="e.g. AI Campus Assistant" required />
+        </div>
+        <div class="mb-3">
+          <label class="ch-label">Description *</label>
+          <textarea name="description" class="form-control ch-input" rows="4"
+                    placeholder="What is this project about? What problem does it solve?" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="ch-label">Tags <small class="text-muted fw-normal">(comma-separated)</small></label>
+          <input type="text" name="tags" class="form-control ch-input"
+                 placeholder="Python, React, Machine Learning" />
+        </div>
+        <div class="mb-4">
+          <label class="ch-label">Status</label>
+          <select name="status" class="form-select ch-input">
+            <option value="Active">Active – project is in progress</option>
+            <option value="Recruiting">Recruiting – looking for members</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn ch-btn-primary flex-grow-1">
+            <i class="fas fa-rocket me-2"></i>Launch Project
+          </button>
+          <a href="{{ url_for('projects') }}" class="btn ch-btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

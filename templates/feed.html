@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Feed – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:720px">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="page-title"><i class="fas fa-stream me-2" style="color:var(--acc2)"></i>Community Feed</h1>
+  </div>
+
+  <!-- New post -->
+  <div class="ch-card mb-4">
+    <div class="ch-card-body">
+      <form method="POST">
+        <div class="d-flex gap-3 align-items-start">
+          <div class="av-sm mt-1">{{ user.avatar }}</div>
+          <div class="flex-grow-1">
+            <textarea name="content" class="form-control ch-input mb-2" rows="2"
+                      placeholder="Share something with the community…"></textarea>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <select name="category" class="form-select ch-select" style="width:auto;font-size:.8rem;padding:.3rem .6rem">
+                <option value="general">💬 General</option>
+                <option value="recruiting">🚀 Recruiting</option>
+                <option value="resource">📚 Resource</option>
+                <option value="question">❓ Question</option>
+                <option value="showcase">🏆 Showcase</option>
+              </select>
+              <button type="submit" class="btn btn-sm ch-btn-primary">
+                <i class="fas fa-paper-plane me-1"></i>Post
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="d-flex gap-2 mb-4 flex-wrap">
+    {% for c, label in [('all','All'),('general','💬 General'),('recruiting','🚀 Recruiting'),('resource','📚 Resource'),('question','❓ Question'),('showcase','🏆 Showcase')] %}
+    <a href="{{ url_for('feed', cat=c) }}" class="ch-filter-btn {% if cat==c %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  <!-- Posts -->
+  {% if posts %}
+    {% for post in posts %}
+    <div class="ch-card mb-3 feed-post">
+      <div class="ch-card-body">
+        <div class="d-flex gap-3">
+          <a href="{{ url_for('public_profile', uid=post.author.id) if post.author else '#' }}" class="av-sm mt-1">{{ post.author.avatar if post.author }}</a>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+              <a href="{{ url_for('public_profile', uid=post.author.id) if post.author else '#' }}"
+                 class="fw-bold" style="color:var(--text);font-size:.9rem">{{ post.author.name if post.author }}</a>
+              {% if post.category and post.category != 'general' %}
+              <span class="ch-tag" style="font-size:.68rem">
+                {% if post.category=='recruiting' %}🚀{% elif post.category=='resource' %}📚{% elif post.category=='question' %}❓{% elif post.category=='showcase' %}🏆{% endif %}
+                {{ post.category|title }}
+              </span>
+              {% endif %}
+              <span class="text-muted" style="font-size:.76rem">{{ post.created_at[:10] }}</span>
+            </div>
+            <div style="font-size:.9rem;line-height:1.6">{{ post.content }}</div>
+            <div class="mt-2">
+              <form method="POST" action="{{ url_for('like_post', pid=post.id) }}" style="display:inline">
+                <button class="like-btn {% if session.user_id in post.likes %}liked{% endif %}" type="submit">
+                  <i class="fas fa-heart"></i>
+                  <span>{{ post.likes|length }}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-s large">
+    <i class="fas fa-stream d-block mb-3" style="font-size:2.5rem;color:var(--muted)"></i>
+    <div class="fw-semibold mb-1">Nothing here yet</div>
+    <div>Be the first to post!</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

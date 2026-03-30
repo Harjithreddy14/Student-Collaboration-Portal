@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Login – CollabHub{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="text-center mb-4">
+      <div class="auth-logo"><i class="fas fa-atom"></i></div>
+      <h2 class="auth-title">Welcome back</h2>
+      <p class="text-muted small">Sign in to CollabHub</p>
+    </div>
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="mb-3">
+        <label class="ch-label">Email address</label>
+        <div class="input-group ch-ig">
+          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+          <input type="email" name="email" class="form-control ch-input"
+                 placeholder="you@university.edu" required />
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="ch-label">Password</label>
+        <div class="input-group ch-ig">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          <input type="password" name="password" class="form-control ch-input"
+                 placeholder="••••••••" required />
+        </div>
+      </div>
+      <button type="submit" class="btn ch-btn-primary w-100 btn-lg">
+        Sign In <i class="fas fa-arrow-right ms-2"></i>
+      </button>
+    </form>
+    <p class="text-center mt-4 small">
+      No account? <a href="{{ url_for('register') }}" class="fw-semibold">Create one free →</a>
+    </p>
+    <div class="demo-box mt-3 text-center">
+      <small><i class="fas fa-info-circle me-1"></i>Demo: <strong>alice@uni.edu</strong> / <strong>password</strong></small>
+    </div>
+  </div>
+</div>
+{% endblock %}

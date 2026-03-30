@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Calendar – CollabHub{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-4" style="max-width:1000px">
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="page-title"><i class="fas fa-calendar me-2" style="color:var(--acc)"></i>Calendar</h1>
+      <p class="text-muted mb-0">Visual overview of your deadlines</p>
+    </div>
+    <a href="{{ url_for('todos') }}" class="btn ch-btn-ghost btn-sm">
+      <i class="fas fa-list me-1"></i>List View
+    </a>
+  </div>
+
+  <div class="ch-card">
+    <div class="ch-card-head">
+      <button class="btn btn-sm ch-btn-ghost" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+      <span id="monthLabel" class="fw-bold" style="font-family:'Syne',sans-serif;font-size:1rem"></span>
+      <button class="btn btn-sm ch-btn-ghost" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    <div class="ch-card-body">
+      <div class="calendar-grid mb-1">
+        {% for d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] %}
+        <div class="cal-day-head">{{ d }}</div>
+        {% endfor %}
+      </div>
+      <div class="calendar-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="d-flex gap-3 mt-3 flex-wrap">
+    <span><span class="cal-event high" style="display:inline-block;padding:.2rem .5rem">■</span> High priority</span>
+    <span><span class="cal-event medium" style="display:inline-block;padding:.2rem .5rem">■</span> Medium</span>
+    <span><span class="cal-event low" style="display:inline-block;padding:.2rem .5rem">■</span> Low</span>
+    <span><span class="cal-event done" style="display:inline-block;padding:.2rem .5rem">■</span> Done</span>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const EVENTS = {{ events_json|safe }};
+const TODAY  = '{{ today }}';
+let   current = new Date(TODAY + 'T12:00:00');
+
+function renderCalendar(dt) {
+  const year  = dt.getFullYear();
+  const month = dt.getMonth();
+  const label = dt.toLocaleString('default', {month:'long', year:'numeric'});
+  document.getElementById('monthLabel').textContent = label;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrev  = new Date(year, month, 0).getDate();
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  // prev month days
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = `<div class="cal-day-num">${daysInPrev - i}</div>`;
+    grid.appendChild(d);
+  }
+  // this month
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isToday = dateStr === TODAY;
+    const d = document.createElement('div');
+    d.className = 'cal-day' + (isToday ? ' today' : '');
+    let inner = `<div class="cal-day-num">${day}</div>`;
+    EVENTS.filter(e => e.date === dateStr).forEach(e => {
+      const cls = e.done ? 'done' : e.priority;
+      inner += `<div class="cal-event ${cls}" title="${e.title}">${e.title}</div>`;
+    });
+    d.innerHTML = inner;
+    grid.appendChild(d);
+  }
+  // fill rest
+  const total = firstDay + daysInMonth;
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let i = 1; i <= remaining; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = `<div class="cal-day-num">${i}</div>`;
+    grid.appendChild(d);
+  }
+}
+
+document.getElementById('prevMonth').onclick = () => { current.setMonth(current.getMonth()-1); renderCalendar(current); };
+document.getElementById('nextMonth').onclick = () => { current.setMonth(current.getMonth()+1); renderCalendar(current); };
+renderCalendar(current);
+</script>
+{% endblock %}

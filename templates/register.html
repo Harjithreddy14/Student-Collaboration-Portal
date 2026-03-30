@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Register – CollabHub{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box" style="max-width:500px">
+    <div class="text-center mb-4">
+      <div class="auth-logo"><i class="fas fa-atom"></i></div>
+      <h2 class="auth-title">Join CollabHub</h2>
+      <p class="text-muted small">Create your free student account</p>
+    </div>
+    <form method="POST" action="{{ url_for('register') }}">
+      <div class="mb-3">
+        <label class="ch-label">Full Name</label>
+        <div class="input-group ch-ig">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+          <input type="text" name="name" class="form-control ch-input"
+                 placeholder="Alice Johnson" required />
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="ch-label">University Email</label>
+        <div class="input-group ch-ig">
+          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+          <input type="email" name="email" class="form-control ch-input"
+                 placeholder="you@university.edu" required />
+        </div>
+      </div>
+      <div class="row g-3 mb-3">
+        <div class="col-8">
+          <label class="ch-label">Course / Major</label>
+          <div class="input-group ch-ig">
+            <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
+            <input type="text" name="course" class="form-control ch-input"
+                   placeholder="Computer Science" required />
+          </div>
+        </div>
+        <div class="col-4">
+          <label class="ch-label">Year</label>
+          <select name="year" class="form-select ch-input">
+            <option value="1">Year 1</option>
+            <option value="2">Year 2</option>
+            <option value="3" selected>Year 3</option>
+            <option value="4">Year 4</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="ch-label">Password</label>
+        <div class="input-group ch-ig">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          <input type="password" name="password" class="form-control ch-input"
+                 placeholder="Choose a strong password" required />
+        </div>
+      </div>
+      <button type="submit" class="btn ch-btn-primary w-100 btn-lg">
+        Create Account <i class="fas fa-arrow-right ms-2"></i>
+      </button>
+    </form>
+    <p class="text-center mt-4 small">
+      Already have an account? <a href="{{ url_for('login') }}" class="fw-semibold">Sign in →</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

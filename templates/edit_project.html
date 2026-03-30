@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ project.title }} – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:640px">
+  <a href="{{ url_for('project_detail', pid=project.id) }}" class="back-link mb-4 d-inline-block">
+    <i class="fas fa-arrow-left me-2"></i>Back to Project
+  </a>
+  <div class="ch-card">
+    <div class="ch-card-head">
+      <span><i class="fas fa-edit me-2" style="color:var(--acc)"></i>Edit Project</span>
+    </div>
+    <div class="ch-card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label class="ch-label">Project Title</label>
+          <input type="text" name="title" class="form-control ch-input"
+                 value="{{ project.title }}" required />
+        </div>
+        <div class="mb-3">
+          <label class="ch-label">Description</label>
+          <textarea name="description" class="form-control ch-input" rows="4"
+                    required>{{ project.description }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="ch-label">Tags (comma separated)</label>
+          <input type="text" name="tags" class="form-control ch-input"
+                 value="{{ project.tags | join(', ') }}" placeholder="e.g. Python, ML, React" />
+        </div>
+        <div class="mb-4">
+          <label class="ch-label">Status</label>
+          <select name="status" class="form-select ch-select">
+            <option value="Active"     {% if project.status=='Active'     %}selected{% endif %}>Active</option>
+            <option value="Recruiting" {% if project.status=='Recruiting' %}selected{% endif %}>Recruiting</option>
+            <option value="Completed"  {% if project.status=='Completed'  %}selected{% endif %}>Completed</option>
+          </select>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn ch-btn-primary">
+            <i class="fas fa-save me-2"></i>Save Changes
+          </button>
+          <a href="{{ url_for('project_detail', pid=project.id) }}" class="btn ch-btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

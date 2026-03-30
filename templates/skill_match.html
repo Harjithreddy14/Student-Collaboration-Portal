@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Skill Match – CollabHub{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <div class="mb-4">
+    <h1 class="page-title"><i class="fas fa-magic me-2" style="color:var(--acc3)"></i>Skill Match</h1>
+    <p class="text-muted">Find teammates whose skills complement yours, and discover projects where you can contribute.</p>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <h2 class="section-head"><i class="fas fa-user-friends me-2" style="color:var(--acc3)"></i>Teammate Suggestions</h2>
+      {% if matches %}
+      <div class="row g-3">
+        {% for m in matches %}
+        <div class="col-sm-6">
+          <div class="match-card">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="av-sm" style="width:42px;height:42px;font-size:.85rem">{{ m.user.avatar }}</div>
+              <div class="flex-grow-1">
+                <div class="fw-bold" style="font-size:.95rem">{{ m.user.name }}</div>
+                <div class="text-muted" style="font-size:.76rem">{{ m.user.course }} · Yr {{ m.user.year }}</div>
+              </div>
+              <div class="match-score">{{ m.score }}</div>
+            </div>
+            {% if m.unique %}
+            <div class="mb-1" style="font-size:.73rem;color:var(--muted);font-weight:600">THEY KNOW</div>
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              {% for s in m.unique[:4] %}<span class="skill-badge sm skill-new">{{ s }}</span>{% endfor %}
+            </div>
+            {% endif %}
+            {% if m.common %}
+            <div class="mb-1" style="font-size:.73rem;color:var(--muted);font-weight:600">IN COMMON</div>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              {% for s in m.common[:4] %}<span class="skill-badge sm skill-common">{{ s }}</span>{% endfor %}
+            </div>
+            {% endif %}
+            <a href="{{ url_for('message_thread', partner_id=m.user.id) }}" class="btn btn-sm ch-btn-outline w-100">
+              <i class="fas fa-comment me-1"></i>Message
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-s large">
+        <i class="fas fa-user-friends d-block mb-3" style="font-size:2.5rem;color:var(--acc3)"></i>
+        <div class="fw-semibold mb-1">No matches yet</div>
+        <div>Add skills to your profile to get matched!</div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="col-lg-5">
+      <h2 class="section-head"><i class="fas fa-rocket me-2" style="color:var(--acc)"></i>Recommended Projects</h2>
+      {% if rec_projects %}
+        {% for r in rec_projects %}
+        <div class="ch-card mb-3">
+          <div class="ch-card-body">
+            <div class="fw-bold mb-1">{{ r.project.title }}</div>
+            <div class="text-muted" style="font-size:.82rem;margin-bottom:.6rem">{{ r.project.description[:80] }}…</div>
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              {% for s in r.match %}<span class="skill-badge sm" style="background:rgba(255,107,107,.1);color:var(--acc3)">✓ {{ s }}</span>{% endfor %}
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="text-muted" style="font-size:.76rem">by {{ r.owner.name if r.owner }}</span>
+              <a href="{{ url_for('project_detail', pid=r.project.id) }}" class="btn btn-sm ch-btn-ghost">View</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-s" style="padding:2rem">
+        <i class="fas fa-rocket d-block mb-2"></i>No project recommendations yet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

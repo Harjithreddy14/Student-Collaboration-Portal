@@ -1,0 +1,372 @@
+{
+  "users": [
+    {
+      "id": "u1",
+      "name": "Alice Johnson",
+      "email": "alice@uni.edu",
+      "password": "password",
+      "course": "Computer Science",
+      "year": 3,
+      "skills": [
+        "Python",
+        "React",
+        "ML",
+        "Flask"
+      ],
+      "avatar": "AJ",
+      "xp": 240,
+      "badges": [
+        "project_lead",
+        "team_player",
+        "first_post"
+      ],
+      "bio": "Passionate about AI and building tools that help students learn smarter."
+    },
+    {
+      "id": "u2",
+      "name": "Bob Smith",
+      "email": "bob@uni.edu",
+      "password": "password",
+      "course": "Data Science",
+      "year": 2,
+      "skills": [
+        "SQL",
+        "Tableau",
+        "R",
+        "Python"
+      ],
+      "avatar": "BS",
+      "xp": 95,
+      "badges": [
+        "team_player",
+        "first_post"
+      ],
+      "bio": "Data nerd who loves turning messy datasets into clean insights."
+    },
+    {
+      "id": "u3",
+      "name": "Carol White",
+      "email": "carol@uni.edu",
+      "password": "password",
+      "course": "Design",
+      "year": 4,
+      "skills": [
+        "Figma",
+        "CSS",
+        "Branding",
+        "Illustrator"
+      ],
+      "avatar": "CW",
+      "xp": 310,
+      "badges": [
+        "project_lead",
+        "helper",
+        "course_star",
+        "first_post"
+      ],
+      "bio": "UX/UI designer and visual storyteller. Making the web beautiful one pixel at a time."
+    }
+  ],
+  "projects": [
+    {
+      "id": "p1",
+      "title": "AI Study Assistant",
+      "description": "An AI-powered study tool that helps students revise notes, quiz themselves, and track learning progress using spaced repetition.",
+      "owner_id": "u1",
+      "members": [
+        "u1",
+        "u2"
+      ],
+      "tags": [
+        "AI",
+        "Python",
+        "React",
+        "NLP"
+      ],
+      "status": "Active",
+      "created_at": "2025-01-15",
+      "showcase": true,
+      "kanban": {
+        "todo": [
+          {
+            "id": "k1",
+            "text": "Add spaced repetition algorithm"
+          },
+          {
+            "id": "k2",
+            "text": "Build quiz UI in React"
+          }
+        ],
+        "inprogress": [
+          {
+            "id": "k3",
+            "text": "Integrate GPT API for note summarization"
+          }
+        ],
+        "done": [
+          {
+            "id": "k4",
+            "text": "Setup Flask backend"
+          },
+          {
+            "id": "k5",
+            "text": "User authentication system"
+          }
+        ]
+      }
+    },
+    {
+      "id": "p2",
+      "title": "Campus Event App",
+      "description": "A mobile-friendly web app to discover, RSVP and get reminders for campus events, clubs and workshops.",
+      "owner_id": "u3",
+      "members": [
+        "u3"
+      ],
+      "tags": [
+        "Design",
+        "Flask",
+        "Bootstrap",
+        "UX"
+      ],
+      "status": "Recruiting",
+      "created_at": "2025-02-01",
+      "showcase": false,
+      "kanban": {
+        "todo": [
+          {
+            "id": "k6",
+            "text": "Design event detail page"
+          },
+          {
+            "id": "k7",
+            "text": "Add push notifications"
+          }
+        ],
+        "inprogress": [
+          {
+            "id": "k8",
+            "text": "RSVP system backend"
+          }
+        ],
+        "done": [
+          {
+            "id": "k9",
+            "text": "Wireframes & mockups"
+          }
+        ]
+      }
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg1",
+      "project_id": "p1",
+      "author_id": "u1",
+      "content": "Hey Bob, I pushed the initial Flask setup. Can you take a look?",
+      "created_at": "2025-02-10 09:15"
+    },
+    {
+      "id": "msg2",
+      "project_id": "p1",
+      "author_id": "u2",
+      "content": "Looks great! I'll start on the data pipeline today.",
+      "created_at": "2025-02-10 10:02"
+    },
+    {
+      "id": "msg3",
+      "project_id": "p1",
+      "author_id": "u1",
+      "content": "Perfect! We should also add the spaced repetition logic this week.",
+      "created_at": "2025-02-10 10:30"
+    }
+  ],
+  "posts": [
+    {
+      "id": "post1",
+      "author_id": "u1",
+      "content": "Anyone working on NLP projects? Would love to collaborate or share resources! \ud83e\udd16",
+      "created_at": "2025-02-08T10:00:00",
+      "likes": [
+        "u2",
+        "u3"
+      ],
+      "category": "general"
+    },
+    {
+      "id": "post2",
+      "author_id": "u3",
+      "content": "Looking for a developer to join my Campus Event App! Need someone with Flask/backend experience. DM me! \ud83d\ude80",
+      "created_at": "2025-02-09T14:30:00",
+      "likes": [
+        "u1"
+      ],
+      "category": "looking-for-team"
+    },
+    {
+      "id": "post3",
+      "author_id": "u2",
+      "content": "Just shared some great Python ML cheat sheets in the AI Study project. Check it out under Materials!",
+      "created_at": "2025-02-10T08:00:00",
+      "likes": [
+        "u1"
+      ],
+      "category": "resource"
+    }
+  ],
+  "sticky_notes": [
+    {
+      "id": "n1",
+      "user_id": "u1",
+      "title": "Sprint Goals",
+      "content": "- Finish GPT integration\n- Fix login bug\n- Write unit tests\n- Deploy to staging",
+      "color": "yellow",
+      "created_at": "2025-02-10 08:00",
+      "pinned": true
+    },
+    {
+      "id": "n2",
+      "user_id": "u1",
+      "title": "Meeting Notes",
+      "content": "Bob: working on data pipeline\nNeed to schedule demo by end of month\nAsk prof about dataset access",
+      "color": "blue",
+      "created_at": "2025-02-09 15:30",
+      "pinned": false
+    }
+  ],
+  "todos": [
+    {
+      "id": "t1",
+      "user_id": "u1",
+      "title": "Submit CS3001 Assignment",
+      "due_date": "2026-03-28",
+      "priority": "high",
+      "project": "AI Study Assistant",
+      "done": false,
+      "created_at": "2025-02-08 09:00"
+    },
+    {
+      "id": "t2",
+      "user_id": "u1",
+      "title": "Review Bob's pull request",
+      "due_date": "2026-03-25",
+      "priority": "medium",
+      "project": "AI Study Assistant",
+      "done": false,
+      "created_at": "2025-02-09 11:00"
+    },
+    {
+      "id": "t3",
+      "user_id": "u1",
+      "title": "Read chapter 7 \u2013 Neural Networks",
+      "due_date": "2026-03-24",
+      "priority": "low",
+      "project": "",
+      "done": true,
+      "created_at": "2025-02-07 14:00"
+    }
+  ],
+  "material_requests": [
+    {
+      "id": "mr1",
+      "project_id": "p1",
+      "user_id": "u2",
+      "content": "Does anyone have notes or resources on implementing spaced repetition algorithms? SM-2 specifically.",
+      "status": "open",
+      "created_at": "2025-02-09 16:00"
+    }
+  ],
+  "shared_materials": [
+    {
+      "id": "mat1",
+      "project_id": "p1",
+      "uploaded_by": "u2",
+      "title": "Python ML Cheat Sheet",
+      "link": "https://github.com",
+      "mtype": "doc",
+      "desc": "Quick reference for scikit-learn and pandas",
+      "created_at": "2025-02-10 08:00"
+    },
+    {
+      "id": "mat2",
+      "project_id": "p1",
+      "uploaded_by": "u1",
+      "title": "OpenAI API Docs",
+      "link": "https://platform.openai.com/docs",
+      "mtype": "link",
+      "desc": "Reference for GPT API integration",
+      "created_at": "2025-02-08 12:00"
+    }
+  ],
+  "direct_messages": [
+    {
+      "id": "dm1",
+      "from_id": "u1",
+      "to_id": "u2",
+      "content": "Hey Bob! Great work on the data pipeline.",
+      "created_at": "2025-02-10 11:00:00"
+    },
+    {
+      "id": "dm2",
+      "from_id": "u2",
+      "to_id": "u1",
+      "content": "Thanks Alice! Should be ready for review by tomorrow.",
+      "created_at": "2025-02-10 11:05:00"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif1",
+      "user_id": "u1",
+      "type": "join",
+      "message": "Bob Smith joined your project AI Study Assistant",
+      "created_at": "2025-01-20T10:00:00",
+      "read": true
+    },
+    {
+      "id": "notif2",
+      "user_id": "u1",
+      "type": "message",
+      "message": "Bob Smith sent you a message",
+      "created_at": "2025-02-10T11:05:00",
+      "read": true
+    }
+  ],
+  "course_rooms": [
+    {
+      "id": "r1",
+      "name": "Machine Learning 301",
+      "code": "CS301",
+      "subject": "Computer Science",
+      "created_by": "u1",
+      "members": [
+        "u1",
+        "u2"
+      ],
+      "posts": [
+        {
+          "id": "rp1",
+          "author_id": "u1",
+          "content": "Great lecture today on backpropagation. Anyone want to study together before the exam?",
+          "created_at": "2025-02-09T15:00:00",
+          "likes": [
+            "u2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r2",
+      "name": "UX Design Studio",
+      "code": "DES402",
+      "subject": "Design",
+      "created_by": "u3",
+      "members": [
+        "u3"
+      ],
+      "posts": []
+    }
+  ],
+  "polls": [],
+  "skill_matches": []
+}

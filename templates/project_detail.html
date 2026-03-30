@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:1080px">
+  <a href="{{ url_for('projects') }}" class="back-link mb-4 d-inline-block">
+    <i class="fas fa-arrow-left me-2"></i>Back to Projects
+  </a>
+
+  <div class="row g-4">
+    <!-- Main column -->
+    <div class="col-lg-8">
+
+      <!-- Header card -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-body">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+            <div>
+              <span class="status-badge {{ project.status.lower() }} mb-2 d-inline-block">{{ project.status }}</span>
+              {% if project.showcase %}<span class="ms-2" style="font-size:1.1rem" title="Showcased">🏆</span>{% endif %}
+              <h2 class="page-title mb-1">{{ project.title }}</h2>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              {% if session.user_id == project.owner_id %}
+              <a href="{{ url_for('edit_project', pid=project.id) }}" class="btn btn-sm ch-btn-ghost"><i class="fas fa-edit me-1"></i>Edit</a>
+              <form method="POST" action="{{ url_for('toggle_showcase', pid=project.id) }}" style="display:inline">
+                <button class="btn btn-sm ch-btn-ghost">
+                  {% if project.showcase %}<i class="fas fa-eye-slash me-1"></i>Unshowcase{% else %}<i class="fas fa-trophy me-1"></i>Showcase{% endif %}
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('delete_project', pid=project.id) }}"
+                    onsubmit="return confirm('Delete this project?')">
+                <button class="btn btn-sm ch-btn-danger"><i class="fas fa-trash me-1"></i>Delete</button>
+              </form>
+              {% elif session.user_id in project.members %}
+              <form method="POST" action="{{ url_for('leave_project', pid=project.id) }}"
+                    onsubmit="return confirm('Leave this project?')">
+                <button class="btn btn-sm ch-btn-ghost">Leave</button>
+              </form>
+              {% else %}
+              <form method="POST" action="{{ url_for('join_project', pid=project.id) }}">
+                <button class="btn ch-btn-primary">Join Project</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+          <p style="color:var(--muted)">{{ project.description }}</p>
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            {% for t in project.tags %}<span class="ch-tag">{{ t }}</span>{% endfor %}
+          </div>
+          {% if project.roles %}
+          <div class="mt-2" style="font-size:.82rem;color:var(--muted)">
+            <i class="fas fa-briefcase me-1"></i><strong>Open roles:</strong> {{ project.roles }}
+          </div>
+          {% endif %}
+          <hr style="border-color:var(--bdr);margin:.8rem 0" />
+          <small style="color:var(--muted)">
+            <i class="fas fa-calendar me-1"></i>Created {{ project.created_at }}
+            &nbsp;·&nbsp;<i class="fas fa-user me-1"></i>Admin: {{ owner.name if owner }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Kanban Board -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-columns me-2" style="color:var(--acc)"></i>Kanban Board</span>
+          {% if session.user_id in project.members %}
+          <button class="btn btn-sm ch-btn-ghost" data-bs-toggle="modal" data-bs-target="#addCardModal">
+            <i class="fas fa-plus me-1"></i>Add Card
+          </button>
+          {% endif %}
+        </div>
+        <div class="ch-card-body">
+          <div class="kanban-board">
+            {% for col, label, color in [('todo','📋 To Do','var(--muted)'),('inprogress','⚡ In Progress','var(--acc4)'),('done','✅ Done','var(--acc2)')] %}
+            <div class="kanban-col">
+              <div class="kanban-col-head" style="color:{{ color }}">
+                <span>{{ label }}</span>
+                <span style="background:var(--bg2);border-radius:99px;padding:.05rem .5rem;font-size:.72rem">
+                  {{ kanban[col]|length }}
+                </span>
+              </div>
+              {% for card in kanban[col] %}
+              <div class="kanban-card">
+                <div style="font-size:.85rem;font-weight:500">{{ card.title }}</div>
+                <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem">{{ card.created_at }}</div>
+                {% if session.user_id in project.members %}
+                <div class="kanban-card-actions">
+                  {% if col != 'todo' %}
+                  <form method="POST" action="{{ url_for('kanban_move', pid=project.id) }}" style="display:inline">
+                    <input type="hidden" name="card_id" value="{{ card.id }}">
+                    <input type="hidden" name="to_col" value="{% if col=='inprogress' %}todo{% else %}inprogress{% endif %}">
+                    <button class="kanban-move-btn">← Back</button>
+                  </form>
+                  {% endif %}
+                  {% if col != 'done' %}
+                  <form method="POST" action="{{ url_for('kanban_move', pid=project.id) }}" style="display:inline">
+                    <input type="hidden" name="card_id" value="{{ card.id }}">
+                    <input type="hidden" name="to_col" value="{% if col=='todo' %}inprogress{% else %}done{% endif %}">
+                    <button class="kanban-move-btn">→ Next</button>
+                  </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('kanban_delete', pid=project.id) }}" style="display:inline">
+                    <input type="hidden" name="card_id" value="{{ card.id }}">
+                    <button class="kanban-move-btn" style="color:var(--acc3)" onclick="return confirm('Delete card?')">✕</button>
+                  </form>
+                </div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Chat -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-comments me-2" style="color:var(--acc)"></i>Team Chat</span>
+        </div>
+        <div class="ch-card-body">
+          <div class="chat-box" id="chatBox">
+            {% if messages %}
+              {% for m in messages %}
+              <div class="chat-row {% if m.author_id == session.user_id %}mine{% endif %}">
+                <div class="chat-bubble">
+                  <div class="chat-author">{{ m.author.name if m.author else 'Unknown' }}</div>
+                  {{ m.content }}
+                  <div class="chat-time">{{ m.created_at }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+            <div class="empty-s"><i class="fas fa-comment-dots mb-2 d-block"></i>No messages yet. Start the conversation!</div>
+            {% endif %}
+          </div>
+          {% if session.user_id in project.members %}
+          <form method="POST" action="{{ url_for('send_message', pid=project.id) }}" class="mt-3">
+            <div class="input-group ch-ig">
+              <input type="text" name="content" class="form-control ch-input" placeholder="Message your team…" required />
+              <button type="submit" class="btn ch-btn-primary px-3"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Polls -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-poll me-2" style="color:var(--acc2)"></i>Polls</span>
+          {% if session.user_id in project.members %}
+          <button class="btn btn-sm ch-btn-ghost" data-bs-toggle="modal" data-bs-target="#createPollModal">
+            <i class="fas fa-plus me-1"></i>New Poll
+          </button>
+          {% endif %}
+        </div>
+        <div class="ch-card-body">
+          {% if project_polls %}
+            {% for poll in project_polls %}
+            <div class="poll-card">
+              <div class="poll-question">{{ poll.question }}</div>
+              {% set total_votes = poll.options|map(attribute='votes')|map('length')|sum %}
+              {% for opt in poll.options %}
+              {% set voted = session.user_id in opt.votes %}
+              {% set pct = ((opt.votes|length / [total_votes,1]|max) * 100)|int %}
+              <form method="POST" action="{{ url_for('vote_poll', poll_id=poll.id) }}" style="display:contents">
+                  <input type="hidden" name="option" value="{{ loop.index0 }}">
+                <button type="submit" class="poll-option {% if voted %}voted{% endif %} w-100 text-start border-0">
+                  <span style="flex-shrink:0;font-size:.82rem">{{ opt.text }}</span>
+                  <div class="poll-bar-wrap"><div class="poll-bar" style="width:{{ pct }}%"></div></div>
+                  <span class="poll-count">{{ opt.votes|length }}</span>
+                </button>
+              </form>
+              {% endfor %}
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="empty-s"><i class="fas fa-poll d-block mb-2"></i>No polls yet.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Shared Materials -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head">
+          <span><i class="fas fa-book-open me-2" style="color:var(--acc2)"></i>Shared Materials</span>
+          {% if session.user_id in project.members %}
+          <button class="btn btn-sm ch-btn-ghost" data-bs-toggle="modal" data-bs-target="#shareMaterialModal"><i class="fas fa-plus me-1"></i>Share</button>
+          {% endif %}
+        </div>
+        <div class="ch-card-body">
+          {% if materials %}
+            {% for m in materials %}
+            <div class="material-item">
+              <div class="mat-icon {{ m.mtype }}">
+                {% if m.mtype=='link' %}<i class="fas fa-link"></i>
+                {% elif m.mtype=='doc' %}<i class="fas fa-file-alt"></i>
+                {% elif m.mtype=='video' %}<i class="fas fa-play-circle"></i>
+                {% else %}<i class="fas fa-paperclip"></i>{% endif %}
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold" style="font-size:.9rem">
+                  {% if m.link %}<a href="{{ m.link }}" target="_blank">{{ m.title }}</a>{% else %}{{ m.title }}{% endif %}
+                </div>
+                {% if m.desc %}<div style="font-size:.8rem;color:var(--muted)">{{ m.desc }}</div>{% endif %}
+                <div style="font-size:.72rem;color:var(--muted)">by {{ m.uploader.name if m.uploader else '?' }} · {{ m.created_at }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}<div class="empty-s"><i class="fas fa-book-open d-block mb-2"></i>No materials shared yet.</div>{% endif %}
+        </div>
+      </div>
+
+      <!-- Material Requests -->
+      <div class="ch-card">
+        <div class="ch-card-head">
+          <span><i class="fas fa-hand-paper me-2" style="color:var(--acc4)"></i>Material Requests</span>
+          {% if session.user_id in project.members %}
+          <button class="btn btn-sm ch-btn-ghost" data-bs-toggle="modal" data-bs-target="#requestMaterialModal"><i class="fas fa-plus me-1"></i>Request</button>
+          {% endif %}
+        </div>
+        <div class="ch-card-body">
+          {% if mat_requests %}
+            {% for r in mat_requests %}
+            <div class="request-item">
+              <div>{{ r.content }}</div>
+              <div class="request-meta"><i class="fas fa-user me-1"></i>{{ r.requester.name if r.requester else '?' }} · {{ r.created_at }}</div>
+            </div>
+            {% endfor %}
+          {% else %}<div class="empty-s"><i class="fas fa-hand-paper d-block mb-2"></i>No requests yet.</div>{% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <div class="ch-card mb-4">
+        <div class="ch-card-head"><span><i class="fas fa-users me-2"></i>Team ({{ members|length }})</span></div>
+        <div class="ch-card-body">
+          {% for m in members %}{% if m %}
+          <div class="d-flex align-items-center gap-2 py-2" style="border-bottom:1px solid var(--bdr)">
+            <a href="{{ url_for('public_profile', uid=m.id) }}" class="av-sm text-decoration-none">{{ m.avatar }}</a>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small">
+                <a href="{{ url_for('public_profile', uid=m.id) }}" style="color:var(--text)">{{ m.name }}</a>
+                {% if m.id == project.owner_id %}
+                <span class="ms-1 px-1 py-0 rounded" style="background:rgba(108,99,255,.15);color:var(--acc);font-size:.65rem;font-weight:700">Admin</span>
+                {% endif %}
+              </div>
+              <div style="font-size:.73rem;color:var(--muted)">{{ m.course }}</div>
+            </div>
+            {% if m.id != session.user_id %}
+            <a href="{{ url_for('message_thread', partner_id=m.id) }}" class="btn btn-sm ch-btn-ghost" style="padding:.2rem .5rem;font-size:.7rem">
+              <i class="fas fa-comment"></i>
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}{% endfor %}
+        </div>
+      </div>
+      <!-- Stats -->
+      <div class="ch-card mb-4">
+        <div class="ch-card-head"><span><i class="fas fa-chart-bar me-2" style="color:var(--acc4)"></i>Stats</span></div>
+        <div class="ch-card-body">
+          {% for label, val in [('Messages', messages|length),('Materials', materials|length),('Requests', mat_requests|length),('Polls', project_polls|length),('Kanban Cards', (kanban.todo|length + kanban.inprogress|length + kanban.done|length))] %}
+          <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid var(--bdr)">
+            <span style="color:var(--muted);font-size:.84rem">{{ label }}</span>
+            <strong>{{ val }}</strong>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Kanban Card -->
+<div class="modal fade" id="addCardModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header border-0 pb-0">
+      <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2" style="color:var(--acc)"></i>Add Card</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <form method="POST" action="{{ url_for('kanban_add', pid=project.id) }}">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="ch-label">Task Title</label>
+          <input type="text" name="title" class="form-control ch-input" placeholder="What needs to be done?" required />
+        </div>
+        <div class="mb-2">
+          <label class="ch-label">Column</label>
+          <select name="col" class="form-select ch-select">
+            <option value="todo">📋 To Do</option>
+            <option value="inprogress">⚡ In Progress</option>
+            <option value="done">✅ Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn ch-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn ch-btn-primary">Add Card</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Create Poll -->
+<div class="modal fade" id="createPollModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header border-0 pb-0">
+      <h5 class="modal-title fw-bold"><i class="fas fa-poll me-2" style="color:var(--acc2)"></i>Create Poll</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <form method="POST" action="{{ url_for('create_poll', pid=project.id) }}">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="ch-label">Question</label>
+          <input type="text" name="question" class="form-control ch-input" placeholder="What should we decide?" required />
+        </div>
+        <div class="mb-2">
+          <label class="ch-label">Options (one per line, min 2)</label>
+          <textarea name="options" class="form-control ch-input" rows="4" placeholder="Option A&#10;Option B&#10;Option C" required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn ch-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn ch-btn-primary">Create Poll</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Share Material -->
+<div class="modal fade" id="shareMaterialModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header border-0 pb-0">
+      <h5 class="modal-title fw-bold"><i class="fas fa-share me-2" style="color:var(--acc2)"></i>Share Material</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <form method="POST" action="{{ url_for('share_material', pid=project.id) }}">
+      <div class="modal-body">
+        <div class="mb-3"><label class="ch-label">Title</label>
+          <input type="text" name="title" class="form-control ch-input" required /></div>
+        <div class="mb-3"><label class="ch-label">Type</label>
+          <select name="mtype" class="form-select ch-select">
+            <option value="link">Link</option><option value="doc">Document</option>
+            <option value="video">Video</option><option value="other">Other</option>
+          </select></div>
+        <div class="mb-3"><label class="ch-label">URL (optional)</label>
+          <input type="url" name="link" class="form-control ch-input" placeholder="https://…" /></div>
+        <div class="mb-2"><label class="ch-label">Description</label>
+          <textarea name="desc" class="form-control ch-input" rows="2"></textarea></div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn ch-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn ch-btn-primary">Share</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Request Material -->
+<div class="modal fade" id="requestMaterialModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header border-0 pb-0">
+      <h5 class="modal-title fw-bold"><i class="fas fa-hand-paper me-2" style="color:var(--acc4)"></i>Request Material</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <form method="POST" action="{{ url_for('request_material', pid=project.id) }}">
+      <div class="modal-body">
+        <div class="mb-2"><label class="ch-label">What do you need?</label>
+          <textarea name="content" class="form-control ch-input" rows="3" required></textarea></div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn ch-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn ch-btn-primary">Post Request</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>var cb=document.getElementById('chatBox');if(cb)cb.scrollTop=cb.scrollHeight;</script>
+{% endblock %}

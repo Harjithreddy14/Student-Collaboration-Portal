@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Profile – CollabHub{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:780px">
+  <h1 class="page-title mb-4">My Profile</h1>
+
+  <div class="row g-4">
+    <!-- Left panel -->
+    <div class="col-md-4">
+      <div class="ch-card text-center mb-4">
+        <div class="ch-card-body py-4">
+          <div class="prof-av mx-auto mb-3">{{ user.avatar }}</div>
+          <h5 class="fw-bold mb-1">{{ user.name }}</h5>
+          <p class="text-muted small mb-2">{{ user.email }}</p>
+          <span class="ch-tag">{{ user.course }} · Yr {{ user.year }}</span>
+          <hr style="border-color:var(--bdr);margin:1rem 0" />
+          <div class="d-flex flex-wrap gap-1 justify-content-center">
+            {% for s in user.skills %}
+            <span class="skill-badge">{{ s }}</span>
+            {% endfor %}
+            {% if not user.skills %}
+            <p class="text-muted small mb-0">No skills yet</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="ch-card">
+        <div class="ch-card-head">
+          <span>My Projects ({{ my_projects|length }})</span>
+        </div>
+        <div class="ch-card-body">
+          {% for p in my_projects %}
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="proj-ico sm"><i class="fas fa-rocket"></i></div>
+            <a href="{{ url_for('project_detail', pid=p.id) }}"
+               class="small fw-semibold" style="color:var(--text)">{{ p.title }}</a>
+          </div>
+          {% else %}
+          <p class="text-muted small mb-0">No projects yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit form -->
+    <div class="col-md-8">
+      <div class="ch-card">
+        <div class="ch-card-head">
+          <span><i class="fas fa-edit me-2 text-primary"></i>Edit Profile</span>
+        </div>
+        <div class="ch-card-body">
+          <form method="POST" action="{{ url_for('profile') }}">
+            <div class="mb-3">
+              <label class="ch-label">Full Name</label>
+              <input type="text" name="name" class="form-control ch-input"
+                     value="{{ user.name }}" required />
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-8">
+                <label class="ch-label">Course / Major</label>
+                <input type="text" name="course" class="form-control ch-input"
+                       value="{{ user.course }}" required />
+              </div>
+              <div class="col-sm-4">
+                <label class="ch-label">Year</label>
+                <select name="year" class="form-select ch-input">
+                  {% for y in [1,2,3,4] %}
+                  <option value="{{ y }}" {% if user.year == y %}selected{% endif %}>Year {{ y }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="ch-label">
+                Skills <small class="text-muted fw-normal">(comma-separated)</small>
+              </label>
+              <input type="text" name="skills" class="form-control ch-input"
+                     value="{{ user.skills|join(', ') }}"
+                     placeholder="Python, React, Figma, Machine Learning" />
+              <div class="form-text" style="color:var(--muted)">
+                Add your technical and creative skills to help teammates find you.
+              </div>
+            </div>
+            <button type="submit" class="btn ch-btn-primary w-100">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
